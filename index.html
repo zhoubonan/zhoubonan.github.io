@@ -116,6 +116,20 @@
             animation: pulse 3s infinite ease-in-out;
         }
 
+        .countdown-timer {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 30px 0;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+        }
+
+        .countdown-label {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            color: #ffd700;
+        }
+
         .photo-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -201,6 +215,94 @@
             transition: width 0.3s ease;
         }
 
+        /* 音乐控制按钮 */
+        .music-control {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .music-control i {
+            font-size: 24px;
+            color: white;
+        }
+
+        .music-control.playing {
+            background: rgba(255, 255, 255, 0.3);
+            animation: pulseMusic 2s infinite;
+        }
+
+        @keyframes pulseMusic {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* 欢迎提示遮罩 */
+        .welcome-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+            color: white;
+            text-align: center;
+        }
+
+        .welcome-content {
+            max-width: 80%;
+            padding: 40px;
+        }
+
+        .welcome-title {
+            font-size: 3em;
+            margin-bottom: 30px;
+            background: linear-gradient(to right, #ff6b6b, #ffa726, #4ecdc4);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .welcome-subtitle {
+            font-size: 1.5em;
+            margin-bottom: 30px;
+            opacity: 0.8;
+        }
+
+        .start-button {
+            background: linear-gradient(45deg, #ff6b6b, #ffa726);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .start-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(255, 107, 107, 0.4);
+        }
+
         /* 响应式调整 */
         @media (max-width: 768px) {
             .slide-date {
@@ -211,6 +313,10 @@
                 font-size: 5em;
             }
             
+            .countdown-timer {
+                font-size: 1.8em;
+            }
+            
             .photo-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
@@ -218,87 +324,122 @@
             .grid-photo {
                 height: 180px;
             }
+            
+            .music-control {
+                width: 45px;
+                height: 45px;
+            }
+            
+            .music-control i {
+                font-size: 20px;
+            }
+            
+            .welcome-title {
+                font-size: 2em;
+            }
+            
+            .welcome-subtitle {
+                font-size: 1.2em;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- 欢迎提示遮罩 -->
+    <div class="welcome-overlay" id="welcomeOverlay">
+        <div class="welcome-content">
+            <h1 class="welcome-title">欢迎来到我们的时光之旅</h1>
+            <p class="welcome-subtitle">即将为您呈现我们共同走过的美好时光</p>
+            <p class="welcome-subtitle">点击下方按钮开始体验</p>
+            <button class="start-button" id="startButton">开始旅程</button>
+        </div>
+    </div>
+
+    <!-- 音乐控制按钮 -->
+    <div class="music-control" id="musicControl" title="点击控制背景音乐">
+        <i class="fas fa-music"></i>
+    </div>
+
+    <!-- 背景音乐元素 -->
+    <audio id="bgMusic" loop preload="auto">
+        <source src="assets/music/1.mp3" type="audio/mpeg">
+        您的浏览器不支持音频元素。
+    </audio>
+
     <!-- 第一阶段：自动播放的幻灯片 -->
     <div class="slideshow-container" id="slideshow">
         <div class="progress-bar" id="progressBar"></div>
         
         <!-- 幻灯片1-12 -->
-        <!-- 注意：你需要替换以下12个slide中的图片路径和日期 -->
         <div class="slide active" id="slide1">
             <img src="assets/photos/1.jpg" alt="我们的回忆 1" class="slide-image">
-            <div class="slide-date">2014.02.19 - 故事的开始</div>
+            <div class="slide-date">2014.05.04 - 第一次去长沙找你</div>
             <div class="slide-counter">1 / 12</div>
         </div>
         
         <div class="slide" id="slide2">
             <img src="assets/photos/2.jpg" alt="我们的回忆 2" class="slide-image">
-            <div class="slide-date">2014.06.15 - 第一次旅行</div>
+            <div class="slide-date">2015.05.06 - 岳阳洞庭看水</div>
             <div class="slide-counter">2 / 12</div>
         </div>
         
         <div class="slide" id="slide3">
             <img src="assets/photos/3.jpg" alt="我们的回忆 3" class="slide-image">
-            <div class="slide-date">2015.03.20 - 你的生日惊喜</div>
+            <div class="slide-date">2016.01.14 - 清迈街头</div>
             <div class="slide-counter">3 / 12</div>
         </div>
         
-        <!-- 幻灯片4-12（结构相同） -->
         <div class="slide" id="slide4">
             <img src="assets/photos/4.jpg" alt="我们的回忆 4" class="slide-image">
-            <div class="slide-date">2015.10.01 - 国庆之旅</div>
+            <div class="slide-date">2017.05.07 - 猜猜这又是在哪里</div>
             <div class="slide-counter">4 / 12</div>
         </div>
 
         <div class="slide" id="slide5">
             <img src="assets/photos/5.jpg" alt="我们的回忆 5" class="slide-image">
-            <div class="slide-date">2016.05.20 - 特别的日子</div>
+            <div class="slide-date">2018.01.01 - 来到杭州啦</div>
             <div class="slide-counter">5 / 12</div>
         </div>
 
         <div class="slide" id="slide6">
             <img src="assets/photos/6.jpg" alt="我们的回忆 6" class="slide-image">
-            <div class="slide-date">2017.08.15 - 夏日记忆</div>
+            <div class="slide-date">2019.12.28 - 漂亮的云南</div>
             <div class="slide-counter">6 / 12</div>
         </div>
 
         <div class="slide" id="slide7">
             <img src="assets/photos/7.jpg" alt="我们的回忆 7" class="slide-image">
-            <div class="slide-date">2018.01.01 - 新年愿景</div>
+            <div class="slide-date">2020.11.14 - 共度安顶山</div>
             <div class="slide-counter">7 / 12</div>
         </div>
 
         <div class="slide" id="slide8">
             <img src="assets/photos/8.jpg" alt="我们的回忆 8" class="slide-image">
-            <div class="slide-date">2019.07.12 - 难忘之旅</div>
+            <div class="slide-date">2021.05.11 - 婚后蜜月</div>
             <div class="slide-counter">8 / 12</div>
         </div>
 
         <div class="slide" id="slide9">
             <img src="assets/photos/9.jpg" alt="我们的回忆 9" class="slide-image">
-            <div class="slide-date">2020.11.11 - 温暖的陪伴</div>
+            <div class="slide-date">2022.02.20 - 领证一周年宁波爬山</div>
             <div class="slide-counter">9 / 12</div>
         </div>
 
         <div class="slide" id="slide10">
             <img src="assets/photos/10.jpg" alt="我们的回忆 10" class="slide-image">
-            <div class="slide-date">2022.04.05 - 春日时光</div>
+            <div class="slide-date">2023.02.19 - 怀着宝贝出去玩</div>
             <div class="slide-counter">10 / 12</div>
         </div>
 
         <div class="slide" id="slide11">
             <img src="assets/photos/11.jpg" alt="我们的回忆 11" class="slide-image">
-            <div class="slide-date">2023.09.21 - 秋日私语</div>
+            <div class="slide-date">2024.02.16 - 贵阳小七孔</div>
             <div class="slide-counter">11 / 12</div>
         </div>
 
-        <!-- 示例：第12张幻灯片 -->
         <div class="slide" id="slide12">
             <img src="assets/photos/12.jpg" alt="我们的回忆 12" class="slide-image">
-            <div class="slide-date">2025.12.24 - 最近的幸福</div>
+            <div class="slide-date">2025.10.10 - 之江二小</div>
             <div class="slide-counter">12 / 12</div>
         </div>
     </div>
@@ -309,6 +450,8 @@
             <p>从2014年2月19日到2026年2月19日</p>
             <div class="days-number">4383</div>
             <p>个日夜的陪伴与成长</p>
+            <div class="countdown-label">距离目标日期还有：</div>
+            <div class="countdown-timer" id="countdownTimer">00-00-00:00</div>
         </div>
 
         <div class="photo-grid" id="photoGrid">
@@ -318,18 +461,21 @@
         <div class="final-message">
             <h2>致我最爱的人</h2>
             <p>这4383天，是12张照片无法概括的全部。</p>
+            <p>这些数字，丈量了相识的惊喜，相知的默契，也刻满了相爱的一点一滴。</p>
             <p>每一个平凡的日子，因为有你而变得非凡。</p>
             <p>每一段简单的时光，因为与你共度而成为永恒。</p>
-            <p style="margin-top: 30px; font-size: 1.5em; color: #ffd700;">—— 爱你，在接下来的每一个4383天</p>
+            <p>感谢是你，愿未来每一天，风景依旧，身边依旧是你。</p>
+            <p style="margin-top: 30px; font-size: 1.5em; color: #ffd700;">—— 爱你，在接下来的每一天</p>
             <p style="margin-top: 20px; font-size: 1.1em;">2026年2月19日</p>
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
     <script>
         // 配置信息
         const CONFIG = {
             totalSlides: 12,
-            slideDuration: 2000, // 每张幻灯片显示时间（毫秒）
+            slideDuration: 3000, // 每张幻灯片显示时间（毫秒）
             fadeDuration: 500   // 淡入淡出时间（毫秒）
         };
 
@@ -355,35 +501,93 @@
         const finalDisplay = document.getElementById('finalDisplay');
         const progressBar = document.getElementById('progressBar');
         const photoGrid = document.getElementById('photoGrid');
+        const bgMusic = document.getElementById('bgMusic');
+        const musicControl = document.getElementById('musicControl');
+        const welcomeOverlay = document.getElementById('welcomeOverlay');
+        const startButton = document.getElementById('startButton');
         let slideInterval;
+        let isMusicPlaying = false;
+
+        // 初始化音乐控制
+        function initMusic() {
+            // 设置音量
+            bgMusic.volume = 0.5;
+            
+            // 音乐控制按钮事件
+            musicControl.addEventListener('click', toggleMusic);
+        }
+
+        // 尝试播放音乐
+        function tryPlayMusic() {
+            return bgMusic.play().then(() => {
+                isMusicPlaying = true;
+                musicControl.classList.add('playing');
+                musicControl.title = "点击暂停背景音乐";
+                console.log("音乐已播放");
+            }).catch(e => {
+                console.log("音乐播放失败:", e.message);
+                // 显示音乐按钮提示用户手动播放
+                showMusicHint();
+            });
+        }
+
+        // 显示音乐提示
+        function showMusicHint() {
+            // 闪烁音乐按钮提醒用户
+            musicControl.style.animation = 'pulseMusic 1s infinite';
+            setTimeout(() => {
+                musicControl.style.animation = '';
+            }, 5000);
+        }
+
+        // 切换音乐播放状态
+        function toggleMusic() {
+            if (isMusicPlaying) {
+                bgMusic.pause();
+                isMusicPlaying = false;
+                musicControl.classList.remove('playing');
+                musicControl.title = "点击开启背景音乐";
+            } else {
+                bgMusic.play().then(() => {
+                    isMusicPlaying = true;
+                    musicControl.classList.add('playing');
+                    musicControl.title = "点击暂停背景音乐";
+                }).catch(e => {
+                    console.error("音乐播放失败:", e.message);
+                    alert("音乐播放失败，请刷新页面重试");
+                });
+            }
+        }
+
+        // 开始主要体验
+        function startExperience() {
+            // 隐藏欢迎遮罩
+            welcomeOverlay.style.opacity = '0';
+            setTimeout(() => {
+                welcomeOverlay.style.display = 'none';
+                
+                // 尝试播放音乐
+                tryPlayMusic();
+                
+                // 开始幻灯片
+                startSlideshow();
+            }, 500);
+        }
 
         // 初始化幻灯片
         function initSlideshow() {
-            // 动态创建幻灯片（如果尚未在HTML中创建）
-            const slideshowContainer = document.querySelector('.slideshow-container');
-            const existingSlides = slideshowContainer.querySelectorAll('.slide').length;
-            
-            if (existingSlides === 0) {
-                for (let i = 0; i < CONFIG.totalSlides; i++) {
-                    const slide = document.createElement('div');
-                    slide.className = i === 0 ? 'slide active' : 'slide';
-                    slide.id = `slide${i + 1}`;
-                    
-                    slide.innerHTML = `
-                        <img src="${photoData[i].src}" alt="我们的回忆 ${i + 1}" class="slide-image">
-                        <div class="slide-date">${photoData[i].date}</div>
-                        <div class="slide-counter">${i + 1} / ${CONFIG.totalSlides}</div>
-                    `;
-                    
-                    slideshowContainer.insertBefore(slide, progressBar);
-                }
-            }
-            
             // 初始化网格照片
             initPhotoGrid();
             
-            // 开始幻灯片播放
-            startSlideshow();
+            // 初始化音乐
+            initMusic();
+            
+            // 启动倒计时
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+            
+            // 绑定开始按钮事件
+            startButton.addEventListener('click', startExperience);
         }
 
         // 初始化照片网格
@@ -449,6 +653,32 @@
             }, 1500);
         }
 
+        // 计算并更新倒计时
+        function updateCountdown() {
+            const targetDate = new Date("2026-02-19T00:00:00");
+            const now = new Date();
+            const diffTime = targetDate - now;
+            
+            if (diffTime <= 0) {
+                document.getElementById('countdownTimer').textContent = "00:00:00:00";
+                return;
+            }
+            
+            const days = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diffTime % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diffTime % (1000 * 60)) / 1000);
+            
+            // 格式化为两位数
+            const formattedDays = String(days).padStart(2, '0');
+            const formattedHours = String(hours).padStart(2, '0');
+            const formattedMinutes = String(minutes).padStart(2, '0');
+            const formattedSeconds = String(seconds).padStart(2, '0');
+            
+            document.getElementById('countdownTimer').textContent = 
+                `${formattedDays}:${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+        }
+
         // 点击跳过幻灯片（直接进入最终展示）
         slideshow.addEventListener('click', () => {
             endSlideshow();
@@ -467,3 +697,6 @@
     </script>
 </body>
 </html>
+
+
+

@@ -19,7 +19,88 @@
             overflow-x: hidden;
         }
 
-        /* 第一阶段：幻灯片容器 */
+        /* 进度条加载遮罩 */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            color: white;
+            text-align: center;
+        }
+
+        .loading-content {
+            max-width: 80%;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .loading-title {
+            font-size: 3.4em;
+            margin-bottom: 30px;
+            background: linear-gradient(to right, #ff6b6b, #ffa726, #4ecdc4);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .progress-container {
+            width: 100%;
+            max-width: 600px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 40px 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(45deg, #ff6b6b, #ffa726);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .loading-text {
+            font-size: 0.8em;
+            margin-top: 20px;
+            opacity: 0.8;
+        }
+
+        .start-button {
+            background: linear-gradient(45deg, #ff6b6b, #ffa726);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .start-button.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .start-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(255, 107, 107, 0.4);
+        }
+
+        /* 幻灯片样式 */
         .slideshow-container {
             position: fixed;
             top: 0;
@@ -28,10 +109,16 @@
             height: 100vh;
             z-index: 100;
             background: rgba(0, 0, 0, 0.9);
+            opacity: 0;
+            pointer-events: none;
             transition: opacity 1.5s ease;
         }
 
-        /* 每张幻灯片 */
+        .slideshow-container.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
         .slide {
             position: absolute;
             top: 0;
@@ -84,7 +171,7 @@
             border-radius: 20px;
         }
 
-        /* 第二阶段：最终展示（初始隐藏） */
+        /* 最终展示样式 */
         .final-display {
             display: none;
             padding: 40px 20px;
@@ -204,17 +291,6 @@
             50% { transform: scale(1.05); }
         }
 
-        /* 进度条 */
-        .progress-bar {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            height: 5px;
-            background: linear-gradient(to right, #ff6b6b, #ffa726);
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-
         /* 音乐控制按钮 */
         .music-control {
             position: fixed;
@@ -249,60 +325,6 @@
             100% { transform: scale(1); }
         }
 
-        /* 欢迎提示遮罩 */
-        .welcome-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1001;
-            color: white;
-            text-align: center;
-        }
-
-        .welcome-content {
-            max-width: 80%;
-            padding: 40px;
-        }
-
-        .welcome-title {
-            font-size: 3em;
-            margin-bottom: 30px;
-            background: linear-gradient(to right, #ff6b6b, #ffa726, #4ecdc4);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .welcome-subtitle {
-            font-size: 1.5em;
-            margin-bottom: 30px;
-            opacity: 0.8;
-        }
-
-        .start-button {
-            background: linear-gradient(45deg, #ff6b6b, #ffa726);
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            font-size: 1.2em;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 20px;
-        }
-
-        .start-button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 25px rgba(255, 107, 107, 0.4);
-        }
-
         /* 响应式调整 */
         @media (max-width: 768px) {
             .slide-date {
@@ -334,23 +356,26 @@
                 font-size: 20px;
             }
             
-            .welcome-title {
+            .loading-title {
                 font-size: 2em;
             }
             
-            .welcome-subtitle {
-                font-size: 1.2em;
+            .loading-text {
+                font-size: 1em;
             }
         }
     </style>
 </head>
 <body>
-    <!-- 欢迎提示遮罩 -->
-    <div class="welcome-overlay" id="welcomeOverlay">
-        <div class="welcome-content">
-            <h1 class="welcome-title">欢迎来到我们的时光之旅</h1>
-            <p class="welcome-subtitle">即将为您呈现我们共同走过的美好时光</p>
-            <p class="welcome-subtitle">点击下方按钮开始体验</p>
+    <!-- 进度条加载遮罩 -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <h1 class="loading-title">欢迎来到我们的时光之旅</h1>
+            <p class="loading-text">正在加载我们共同走过的美好回忆...</p>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <p class="loading-text">约需 12 秒完成加载</p>
             <button class="start-button" id="startButton">开始旅程</button>
         </div>
     </div>
@@ -451,7 +476,7 @@
             <div class="days-number">4383</div>
             <p>个日夜的陪伴与成长</p>
             <div class="countdown-label">距离目标日期还有：</div>
-            <div class="countdown-timer" id="countdownTimer">00-00-00:00</div>
+            <div class="countdown-timer" id="countdownTimer">00:00:00:00</div>
         </div>
 
         <div class="photo-grid" id="photoGrid">
@@ -465,7 +490,7 @@
             <p>每一个平凡的日子，因为有你而变得非凡。</p>
             <p>每一段简单的时光，因为与你共度而成为永恒。</p>
             <p>感谢是你，愿未来每一天，风景依旧，身边依旧是你。</p>
-            <p style="margin-top: 30px; font-size: 1.5em; color: #ffd700;">—— 爱你，在接下来的每一天</p>
+            <p style="margin-top: 30px; font-size: 1.5em; color: #ffd700;">—— 爱你，在接下来的每一个4383天</p>
             <p style="margin-top: 20px; font-size: 1.1em;">2026年2月19日</p>
         </div>
     </div>
@@ -475,72 +500,118 @@
         // 配置信息
         const CONFIG = {
             totalSlides: 12,
-            slideDuration: 3000, // 每张幻灯片显示时间（毫秒）
-            fadeDuration: 500   // 淡入淡出时间（毫秒）
+            slideDuration: 3000,
+            fadeDuration: 500
         };
 
-        // 照片数据 - 请务必修改为你的照片和日期
+        // 照片数据
         const photoData = [
-            { src: "assets/photos/1.JPG", date: "2014.02.19 - 故事的开始" },
-            { src: "assets/photos/2.JPG", date: "2014.06.15 - 第一次旅行" },
-            { src: "assets/photos/3.JPG", date: "2015.03.20 - 你的生日惊喜" },
-            { src: "assets/photos/4.JPG", date: "2015.10.01 - 国庆之旅" },
-            { src: "assets/photos/5.JPG", date: "2016.05.20 - 特别的日子" },
-            { src: "assets/photos/6.JPG", date: "2017.08.15 - 夏日记忆" },
-            { src: "assets/photos/7.JPG", date: "2018.01.01 - 新年愿景" },
-            { src: "assets/photos/8.JPG", date: "2019.07.12 - 难忘之旅" },
-            { src: "assets/photos/9.JPG", date: "2020.11.11 - 温暖的陪伴" },
-            { src: "assets/photos/10.JPG", date: "2022.04.05 - 春日时光" },
-            { src: "assets/photos/11.JPG", date: "2023.09.21 - 秋日私语" },
-            { src: "assets/photos/12.JPG", date: "2025.12.24 - 最近的幸福" }
+            { src: "assets/photos/1.JPG", date: "2014.05.04 - 长沙地铁" },
+            { src: "assets/photos/2.JPG", date: "2015.05.06 - 洞庭湖水" },
+            { src: "assets/photos/3.JPG", date: "2016.01.14 - 清迈街头" },
+            { src: "assets/photos/4.JPG", date: "2017.05.07 - 苏州园林" },
+            { src: "assets/photos/5.JPG", date: "2018.01.01 - 杭州街头" },
+            { src: "assets/photos/6.JPG", date: "2019.12.28 - 洱海之畔" },
+            { src: "assets/photos/7.JPG", date: "2020.11.14 - 安顶山" },
+            { src: "assets/photos/8.JPG", date: "2021.05.11 - 潮汕蜜月" },
+            { src: "assets/photos/9.JPG", date: "2022.02.20 - 宁波爬山" },
+            { src: "assets/photos/10.JPG", date: "2023.02.19 - 兰溪小游" },
+            { src: "assets/photos/11.JPG", date: "2024.02.16 - 贵阳小七孔" },
+            { src: "assets/photos/12.JPG", date: "2025.10.10 - 之江二小" }
         ];
 
         // 初始化变量
         let currentSlide = 0;
         const slideshow = document.getElementById('slideshow');
         const finalDisplay = document.getElementById('finalDisplay');
-        const progressBar = document.getElementById('progressBar');
         const photoGrid = document.getElementById('photoGrid');
         const bgMusic = document.getElementById('bgMusic');
         const musicControl = document.getElementById('musicControl');
-        const welcomeOverlay = document.getElementById('welcomeOverlay');
+        const loadingOverlay = document.getElementById('loadingOverlay');
         const startButton = document.getElementById('startButton');
+        const progressBar = document.getElementById('progressBar');
         let slideInterval;
         let isMusicPlaying = false;
 
-        // 初始化音乐控制
-        function initMusic() {
-            // 设置音量
-            bgMusic.volume = 0.5;
+        // ✅ 核心功能：预加载所有图片 + 进度条
+        function initProgress() {
+            const imagePaths = photoData.map(photo => photo.src);
+            const totalImages = imagePaths.length;
+            let loadedImages = 0;
             
-            // 音乐控制按钮事件
+            if (totalImages === 0) {
+                finishLoading();
+                return;
+            }
+
+            imagePaths.forEach((src, index) => {
+                const img = new Image();
+                img.src = src;
+                
+                img.onload = img.onerror = () => {
+                    loadedImages++;
+                    const progress = (loadedImages / totalImages) * 100;
+                    progressBar.style.width = progress + '%';
+                    
+                    if (loadedImages === totalImages) {
+                        finishLoading();
+                    }
+                };
+            });
+        }
+
+        // ✅ 加载完成后的处理
+        function finishLoading() {
+            // 确保进度条显示100%
+            progressBar.style.width = '100%';
+            
+            // 显示开始按钮（但不自动进入幻灯片！）
+            setTimeout(() => {
+                startButton.classList.add('visible');
+            }, 300);
+        }
+
+        // ✅ 用户点击“开始旅程”后触发
+        function startExperience() {
+            // 隐藏加载遮罩
+            loadingOverlay.style.opacity = '0';
+            setTimeout(() => {
+                loadingOverlay.style.display = 'none';
+                
+                // 激活幻灯片容器
+                slideshow.classList.add('active');
+                
+                // 启动幻灯片
+                startSlideshow();
+                
+                // 尝试播放音乐
+                tryPlayMusic();
+            }, 500);
+        }
+
+        // 初始化音乐
+        function initMusic() {
+            bgMusic.volume = 0.5;
             musicControl.addEventListener('click', toggleMusic);
         }
 
         // 尝试播放音乐
         function tryPlayMusic() {
-            return bgMusic.play().then(() => {
+            bgMusic.play().then(() => {
                 isMusicPlaying = true;
                 musicControl.classList.add('playing');
                 musicControl.title = "点击暂停背景音乐";
-                console.log("音乐已播放");
             }).catch(e => {
-                console.log("音乐播放失败:", e.message);
-                // 显示音乐按钮提示用户手动播放
+                console.warn("自动播放被阻止，请手动点击音乐图标");
                 showMusicHint();
             });
         }
 
-        // 显示音乐提示
         function showMusicHint() {
-            // 闪烁音乐按钮提醒用户
             musicControl.style.animation = 'pulseMusic 1s infinite';
-            setTimeout(() => {
-                musicControl.style.animation = '';
-            }, 5000);
+            setTimeout(() => musicControl.style.animation = '', 5000);
         }
 
-        // 切换音乐播放状态
         function toggleMusic() {
             if (isMusicPlaying) {
                 bgMusic.pause();
@@ -553,107 +624,55 @@
                     musicControl.classList.add('playing');
                     musicControl.title = "点击暂停背景音乐";
                 }).catch(e => {
-                    console.error("音乐播放失败:", e.message);
                     alert("音乐播放失败，请刷新页面重试");
                 });
             }
         }
 
-        // 开始主要体验
-        function startExperience() {
-            // 隐藏欢迎遮罩
-            welcomeOverlay.style.opacity = '0';
-            setTimeout(() => {
-                welcomeOverlay.style.display = 'none';
-                
-                // 尝试播放音乐
-                tryPlayMusic();
-                
-                // 开始幻灯片
-                startSlideshow();
-            }, 500);
-        }
-
-        // 初始化幻灯片
-        function initSlideshow() {
-            // 初始化网格照片
-            initPhotoGrid();
-            
-            // 初始化音乐
-            initMusic();
-            
-            // 启动倒计时
-            updateCountdown();
-            setInterval(updateCountdown, 1000);
-            
-            // 绑定开始按钮事件
-            startButton.addEventListener('click', startExperience);
-        }
-
         // 初始化照片网格
         function initPhotoGrid() {
             photoGrid.innerHTML = '';
-            
             photoData.forEach((photo, index) => {
                 const photoItem = document.createElement('div');
                 photoItem.className = 'photo-item';
-                
                 photoItem.innerHTML = `
                     <img src="${photo.src}" alt="回忆 ${index + 1}" class="grid-photo">
                     <div class="photo-caption">${photo.date.split(' - ')[0]}</div>
                 `;
-                
                 photoGrid.appendChild(photoItem);
             });
         }
 
-        // 开始幻灯片播放
+        // 开始幻灯片
         function startSlideshow() {
             const slides = document.querySelectorAll('.slide');
+            currentSlide = 0;
             
             slideInterval = setInterval(() => {
-                // 更新进度条
-                const progress = ((currentSlide + 1) / CONFIG.totalSlides) * 100;
-                progressBar.style.width = `${progress}%`;
-                
-                // 隐藏当前幻灯片
                 slides[currentSlide].classList.remove('active');
-                
-                // 移动到下一张
                 currentSlide++;
                 
-                // 检查是否结束
                 if (currentSlide >= CONFIG.totalSlides) {
                     endSlideshow();
                     return;
                 }
                 
-                // 显示下一张幻灯片
                 slides[currentSlide].classList.add('active');
-                
             }, CONFIG.slideDuration);
         }
 
-        // 结束幻灯片，进入最终展示
+        // 结束幻灯片
         function endSlideshow() {
             clearInterval(slideInterval);
-            
-            // 淡出幻灯片容器
             slideshow.style.opacity = '0';
-            
-            // 1.5秒后显示最终展示
             setTimeout(() => {
                 slideshow.style.display = 'none';
                 finalDisplay.style.display = 'block';
-                
-                // 添加淡入动画
-                setTimeout(() => {
-                    finalDisplay.style.opacity = '1';
-                }, 100);
+                setTimeout(() => finalDisplay.style.opacity = '1', 100);
             }, 1500);
         }
 
-        // 计算并更新倒计时
+        // 倒计时
         function updateCountdown() {
             const targetDate = new Date("2026-02-19T00:00:00");
             const now = new Date();
@@ -669,34 +688,34 @@
             const minutes = Math.floor((diffTime % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((diffTime % (1000 * 60)) / 1000);
             
-            // 格式化为两位数
-            const formattedDays = String(days).padStart(2, '0');
-            const formattedHours = String(hours).padStart(2, '0');
-            const formattedMinutes = String(minutes).padStart(2, '0');
-            const formattedSeconds = String(seconds).padStart(2, '0');
+            const formatted = [
+                String(days).padStart(2, '0'),
+                String(hours).padStart(2, '0'),
+                String(minutes).padStart(2, '0'),
+                String(seconds).padStart(2, '0')
+            ].join(':');
             
-            document.getElementById('countdownTimer').textContent = 
-                `${formattedDays}:${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+            document.getElementById('countdownTimer').textContent = formatted;
         }
 
-        // 点击跳过幻灯片（直接进入最终展示）
-        slideshow.addEventListener('click', () => {
-            endSlideshow();
+        // 页面加载完成
+        window.addEventListener('DOMContentLoaded', () => {
+            initProgress();      // ✅ 预加载图片 + 进度条
+            initMusic();         // 初始化音乐
+            initPhotoGrid();     // 初始化网格
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+            
+            // ✅ 绑定“开始旅程”按钮点击事件
+            startButton.addEventListener('click', startExperience);
         });
 
-        // 页面加载完成后初始化
-        window.addEventListener('DOMContentLoaded', initSlideshow);
-        
-        // 防止图片加载失败
+        // 图片加载失败兜底
         window.addEventListener('error', function(e) {
             if (e.target.tagName === 'IMG') {
-                console.warn('图片加载失败:', e.target.src);
                 e.target.src = 'https://images.unsplash.com/photo-1518568814500-bf0f8d125f46?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80';
             }
         }, true);
     </script>
 </body>
 </html>
-
-
-
